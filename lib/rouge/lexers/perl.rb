@@ -53,6 +53,7 @@ module Rouge
       state :balanced_regex do
         rule %r(/(\\[\\/]|[^/])*/[egimosx]*)m, re_tok, :pop!
         rule %r(!(\\[\\!]|[^!])*![egimosx]*)m, re_tok, :pop!
+        rule %r(,(\\[\\,]|[^,])*,[egimosx]*)m, re_tok, :pop!
         rule %r(\\(\\\\|[^\\])*\\[egimosx]*)m, re_tok, :pop!
         rule %r({(\\[\\}]|[^}])*}[egimosx]*), re_tok, :pop!
         rule %r(<(\\[\\>]|[^>])*>[egimosx]*), re_tok, :pop!
@@ -90,8 +91,12 @@ module Rouge
         rule %r[s\((\\\\|\\\)|[^\)])*\)\s*], re_tok, :balanced_regex
 
         rule %r(m?/(\\\\|\\/|[^/\n])*/[gcimosx]*), re_tok
-        rule %r(m(?=[/!\\{<\[\(@%\$])), re_tok, :balanced_regex
-        rule %r(((?<==~)|(?<=\())\s*/(\\\\|\\/|[^/])*/[gcimosx]*),
+        rule %r(m(?=[/!,\\{<\[\(@%\$])), re_tok, :balanced_regex
+
+        # Perl allows any non-whitespace character to delimit
+        # a regex when `m` is used.
+        rule %r(m(\S).*\1[msixpodualngc]*), re_tok
+        rule %r(((?<==~)|(?<=\())\s*/(\\\\|\\/|[^/])*/[msixpodualngc]*),
           re_tok, :balanced_regex
 
         rule /\s+/, Text
